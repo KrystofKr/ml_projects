@@ -1,0 +1,1 @@
+Simple ML project to showcase essentials of ML.
