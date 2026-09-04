@@ -9,17 +9,18 @@ description = "Leakage-safe, reproducible Titanic classification portfolio proje
 requires-python = ">=3.11"
 
 dependencies = [
-    "numpy>=2.0",
     "pandas>=2.2",
     "scikit-learn>=1.7",
-    "matplotlib>=3.9",
     "kagglehub>=0.3",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "jupyter>=1.1",
     "pytest>=8.0",
+    "numpy>=2.0",
+    "matplotlib>=3.9",
+    "ipython>=9.0",
+    "jupyter>=1.1",
 ]
 
 [tool.setuptools.packages.find]
