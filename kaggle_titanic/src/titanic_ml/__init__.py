@@ -1,0 +1,3 @@
+"""
+Inicialization of DOCSTRING
+"""
