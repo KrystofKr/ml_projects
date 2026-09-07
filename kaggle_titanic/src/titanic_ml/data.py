@@ -40,7 +40,7 @@ def schema_validation(train: pd.DataFrame, test: pd.DataFrame | None = None) -> 
         if not test["PassengerId"].is_unique:
             raise ValueError("PassengerId must be unique in inference data.")
 
-def load_data() -> tuple[pd.DataFrame, pd.DataFrame]:
+def load_data() -> tuple[pd.DataFrame, pd.DataFrame, str]:
     try:
         import kagglehub
     except ImportError as exp:
@@ -61,7 +61,7 @@ def load_data() -> tuple[pd.DataFrame, pd.DataFrame]:
     test_csv = pd.read_csv(test)
 
     schema_validation(train_csv, test_csv)
-    return train_csv, test_csv
+    return train_csv, test_csv, f"kagglehub:{data_path}"
 
 def split_features_target(train: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series]:
     if TARGET not in train.columns:

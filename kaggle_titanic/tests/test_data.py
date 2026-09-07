@@ -1,7 +1,10 @@
 import pandas as pd
 import pytest
+from pathlib import Path
+import sys
+from types import SimpleNamespace
 
-from titanic_ml.data import schema_validation, split_features_target
+from titanic_ml.data import schema_validation, split_features_target, load_data
 
 
 def make_valid_train() -> pd.DataFrame:
@@ -80,3 +83,41 @@ def test_split_features_target_rejects_missing_target() -> None:
     train = make_valid_train().drop(columns=["Survived"])
     with pytest.raises(KeyError, match=r"Missing target column.*Survived"):
         split_features_target(train)    
+
+def test_load_data_uses_kagglehub_cache(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    cache_dir = tmp_path / "kaggle-cache"
+    cache_dir.mkdir()
+
+    train = make_valid_train()
+
+    test = train.drop(columns=["Survived"]).copy()
+    test["PassengerId"] = [3, 4]
+
+    train.to_csv(cache_dir / "train.csv", index=False)
+    test.to_csv(cache_dir / "test.csv", index=False)
+
+    calls: list[str] = []
+
+    def fake_competition_download(competition: str) -> str:
+        calls.append(competition)
+        return str(cache_dir)
+
+    monkeypatch.setitem(
+        sys.modules,
+        "kagglehub",
+        SimpleNamespace(
+            competition_download=fake_competition_download,
+        ),
+    )
+
+    loaded_train, loaded_test, source = load_data()
+
+    assert calls == ["titanic"]
+
+    assert loaded_train["PassengerId"].tolist() == [1, 2]
+    assert loaded_test["PassengerId"].tolist() == [3, 4]
+
+    assert source == f"kagglehub:{cache_dir}"
